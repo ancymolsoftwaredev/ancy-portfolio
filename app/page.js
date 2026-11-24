@@ -31,6 +31,36 @@ function Shot({ v }) {
   return (<div className="s"><div className="ln d" style={{ width: "40%" }} /><div className="row" style={{ flex: 1 }}><div className="tile">Product</div><div className="tile">Product</div><div className="tile">Product</div></div></div>);
 }
 
+
+const KAN = { New: [["Fatima A.", "2 BR · Al Nahda", "Bayut"], ["Hassan R.", "Studio · Deira", "Dubizzle"]], Contacted: [["Omar K.", "Villa · Mirdif", "uaa.ae"], ["Lina S.", "Office · Karama", "Bayut"]], Viewing: [["Priya N.", "1 BR · Qusais", "Bayut"]], Won: [["Yusuf M.", "Shop · Naif", "Dubizzle"]] };
+const STOCK = [["SKU-1001", "Herbal tea blend", 142, 40], ["SKU-1002", "Vitamin C 60s", 18, 30], ["SKU-1003", "Argan oil 100ml", 66, 25], ["SKU-1004", "Honey 500g", 9, 20], ["SKU-1005", "Protein powder", 54, 20]];
+const BOT = [["Hello! Are you looking to rent or buy?", ["Rent", "Buy"]], ["Which property type?", ["Apartment", "Villa", "Office"]], ["When would you like to move in?", ["Immediately", "Within 1 month"]], ["Perfect. I found 3 matching units. Our consultant Shifa will call you at 9:00 AM.", []]];
+const ADS = [["Villas · lead form", 1850, 92], ["Apartments · WhatsApp", 2400, 138], ["Retargeting", 600, 41], ["Brand video", 900, 17]];
+const TABS = [["crm", "Lead CRM"], ["inv", "Inventory"], ["bot", "WhatsApp bot"], ["ads", "Meta Ads"]];
+
+function Systems() {
+  const [t, setT] = useState("crm"), [low, setLow] = useState(false), [log, setLog] = useState([["bot", BOT[0][0]]]), [step, setStep] = useState(0);
+  const pick = o => { const n = step + 1; setLog([...log, ["me", o], ["bot", BOT[n][0]]]); setStep(n); };
+  const rows = STOCK.filter(r => !low || r[2] < r[3]);
+  const spend = ADS.reduce((a, r) => a + r[1], 0), leads = ADS.reduce((a, r) => a + r[2], 0), top = Math.max(...ADS.map(r => r[2]));
+  return (
+    <div>
+      <div className="filters" role="tablist">{TABS.map(([k, l]) => <button key={k} className="chip" aria-pressed={t === k} onClick={() => setT(k)}>{l}</button>)}</div>
+      <div className="win"><div className="bar"><i /><i /><i /></div><div className="body dash">
+        {t === "crm" && <div className="kan">{Object.entries(KAN).map(([c, a]) => <div className="col" key={c}><h4>{c} · {a.length}</h4>{a.map(l => <div className="kc" key={l[0]}><b>{l[0]}</b><small>{l[1]}</small><small>{l[2]}</small></div>)}</div>)}</div>}
+        {t === "inv" && <div><div className="row" style={{ marginBottom: 14 }}><div className="k">Products<b>{STOCK.length}</b></div><div className="k">Low stock<b>{STOCK.filter(r => r[2] < r[3]).length}</b></div><div className="k">Units<b>{STOCK.reduce((a, r) => a + r[2], 0)}</b></div></div>
+          <button className="chip" aria-pressed={low} onClick={() => setLow(!low)}>Show low stock only</button>
+          <table><thead><tr><th>SKU</th><th>Product</th><th>Stock</th><th>Status</th></tr></thead><tbody>{rows.map(r => <tr key={r[0]}><td>{r[0]}</td><td>{r[1]}</td><td><div className="sb"><i style={{ width: Math.min(100, r[2] / 1.5) + "%" }} /></div>{r[2]}</td><td><span className={`tag ${r[2] < r[3] ? "HOT" : "COLD"}`}>{r[2] < r[3] ? "Reorder" : "In stock"}</span></td></tr>)}</tbody></table></div>}
+        {t === "bot" && <div className="chat" style={{ minHeight: 320 }}>{log.map(([w, m], k) => <div key={k} className={`m ${w === "me" ? "me" : ""}`}>{m}</div>)}
+          <div className="opts">{BOT[step][1].map(o => <button key={o} className="chip" onClick={() => pick(o)}>{o}</button>)}{step === BOT.length - 1 && <button className="chip" onClick={() => { setLog([["bot", BOT[0][0]]]); setStep(0); }}>Start again</button>}</div></div>}
+        {t === "ads" && <div><div className="row" style={{ marginBottom: 14 }}><div className="k">Spend<b>AED {spend}</b></div><div className="k">Leads<b>{leads}</b></div><div className="k">Cost per lead<b>AED {(spend / leads).toFixed(0)}</b></div></div>
+          {ADS.map(r => <div className="ad" key={r[0]}><span>{r[0]}</span><div className="sb"><i style={{ width: (r[2] / top) * 100 + "%" }} /></div><span>{r[2]} leads · AED {(r[1] / r[2]).toFixed(0)}</span></div>)}</div>}
+      </div></div>
+      <p className="note">Sample data. These are interactive designs of the dashboards I build; client data is private.</p>
+    </div>
+  );
+}
+
 function Crm() {
   const [i, setI] = useState(0);
   const lead = LEADS[i];
@@ -53,11 +83,12 @@ export default function Home() {
   const list = PROJECTS.filter(p => f === "all" || p.cat === f);
   return (<>
     <nav><div className="wrap"><a className="logo" href="#top">Ancymol KK</a>
-      <div className="links"><a href="#work">Work</a><a href="#stack">Stack</a><a href="#services">Services</a><a href="#contact">Contact</a></div>
+      <div className="links"><a href="#systems">Systems</a><a href="#work">Work</a><a href="#stack">Stack</a><a href="#services">Services</a><a href="#contact">Contact</a></div>
       <a className="btn solid" href="https://wa.me/971561835793">WhatsApp me</a></div></nav>
 
     <header className="hero" id="top"><div className="wrap">
       <div>
+        <div className="who"><img src="/profile.webp" alt="Ancymol KK" width="56" height="56" /><span>Ancymol KK · Dubai</span></div>
         <h1>I build the systems that answer your leads and run your stores.</h1>
         <p className="lead">AI Automation Engineer and Full Stack Developer in Dubai. Lead CRMs, WhatsApp automation, e-commerce and inventory software for real estate and retail.</p>
         <div className="cta"><a className="btn solid" href="#work">See projects</a><a className="btn ghost" href="/Ancymol_KK_CV.pdf">Download CV</a></div>
@@ -65,6 +96,16 @@ export default function Home() {
       </div>
       <Crm />
     </div></header>
+
+    <section className="alt" id="systems"><div className="wrap">
+      <div className="sh"><h2>Systems I build, try them</h2><p>A lead CRM, inventory control, a WhatsApp sales bot and Meta Ads reporting, all connected so a lead goes from ad click to closed deal without manual work.</p></div>
+      <Systems />
+    </div></section>
+
+    <section id="about"><div className="wrap about">
+      <img src="/profile.webp" alt="Ancymol KK, full stack developer in Dubai" width="360" height="360" />
+      <div><h2>One developer from ad click to checkout</h2><p>I'm Ancymol, a developer in Dubai with 4 years across India and the UAE. I build the website, the store, the inventory system, the CRM and the WhatsApp automation, and connect them with APIs and n8n. I speak English, Malayalam, Tamil, Hindi and Arabic.</p></div>
+    </div></section>
 
     <section id="work"><div className="wrap">
       <div className="sh"><h2>Selected work</h2><p>Real estate CRMs, online stores and enterprise platforms, from solo builds to team projects.</p></div>
